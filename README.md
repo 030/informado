@@ -32,6 +32,8 @@
 [![BCH compliance](https://bettercodehub.com/edge/badge/030/informado?branch=master)](https://bettercodehub.com/results/030/informado)
 [![GolangCI](https://golangci.com/badges/github.com/golangci/golangci-web.svg)](https://golangci.com/r/github.com/030/informado)
 
+<a href="https://informado.releasesoftwaremoreoften.com"><img src="https://github.com/030/informado/raw/master/logo/logo.png" width="100"></a>
+
 ## Stargazers over time
 
 [![Stargazers over time](https://starchart.cc/030/informado.svg)](https://starchart.cc/030/informado)
