@@ -7,10 +7,7 @@ go:
 env:
   global:
     - ARTIFACT_PUBLICATION=true
-    - SHA512_CMD=sha512sum
     - GO111MODULE=on
-    - NEXUS_API_VERSION=v1
-    - NEXUS_VERSION=3.21.1
     - SHA512_CMD=sha512sum
 matrix:
   include:
@@ -47,7 +44,7 @@ script:
   - if [ $TRAVIS_OS_NAME == linux ]; then ./integration-tests.sh $NEXUS_VERSION $NEXUS_API_VERSION ./${DELIVERABLE}; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ] && [ "$ARTIFACT_PUBLICATION" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then sonar-scanner -Dsonar.projectKey=030_informado -Dsonar.sources=. -Dsonar.host.url=https://sonarcloud.io -Dsonar.coverage.exclusions=cmd/**,**/*_test.go -Dsonar.go.coverage.reportPaths="coverage.txt"; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ] && [ "$ARTIFACT_PUBLICATION" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then bash <(curl -s https://codecov.io/bash); fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ] && [ -n "${TRAVIS_TAG}" ]; then cp $DELIVERABLE informado && a2deb -app informado -version ${TRAVIS_TAG} -maintainer "030 <chocolatey030@gmail.com>" -description "Nexus3 backup and recovery tool"; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ] && [ -n "${TRAVIS_TAG}" ]; then cp $DELIVERABLE informado && a2deb -app informado -version ${TRAVIS_TAG} -maintainer "030 <chocolatey030@gmail.com>" -description "informado"; fi
 deploy:
   provider: releases
   api_key: $GITHUB_TOKEN
