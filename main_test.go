@@ -8,6 +8,6 @@ import (
 
 func TestToByte(t *testing.T) {
 	exp := "world"
-	act, _ := hello()
+	act := hello()
 	assert.Equal(t, exp, act)
 }
