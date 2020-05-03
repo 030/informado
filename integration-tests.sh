@@ -5,7 +5,7 @@ DELIVERABLE="${DELIVERABLE:-informado}"
 
 validate(){
     if [ -z "${TOOL}" ]; then
-        echo "No deliverable defined. Assuming that 'go run main.go' 
+        echo "No deliverable defined. Assuming that 'go run main.go'
 should be run."
         TOOL="go run main.go"
     fi
