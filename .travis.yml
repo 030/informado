@@ -1,31 +1,14 @@
-# ARTIFACT_PUBLICATION use this constant only once per OS to ensure that
-# the artifacts are only published once per OS, e.g. linux, osx and
-# windows.
 language: go
 go:
   - 1.14.2
 env:
   global:
-    - ARTIFACT_PUBLICATION=true
     - GO111MODULE=on
     - SHA512_CMD=sha512sum
 matrix:
   include:
   - os: linux
     dist: bionic
-    env:
-      - NEXUS_VERSION=latest
-  - os: linux
-    dist: bionic
-    env:
-      - ARTIFACT_PUBLICATION=false
-      - NEXUS_VERSION=3.21.1
-  - os: linux
-    dist: bionic
-    env:
-      - ARTIFACT_PUBLICATION=false
-      - NEXUS_VERSION=3.9.0
-      - NEXUS_API_VERSION=beta
   - os: osx
     env:
       - SHA512_CMD="shasum -a 512"
@@ -39,11 +22,11 @@ before_script:
 script:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then docker run --rm -v $(pwd):/app -w /app golangci/golangci-lint:v1.23.7-alpine golangci-lint run -v; fi
   - export DELIVERABLE="informado-${TRAVIS_OS_NAME}"
-  - if [ "$TRAVIS_OS_NAME" == "linux" ] && [ "$ARTIFACT_PUBLICATION" ]; then go test -short -cover -v -coverprofile=coverage.txt -covermode=atomic ./...; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then go test -short -cover -v -coverprofile=coverage.txt -covermode=atomic ./...; fi
   - if [ "$TRAVIS_OS_NAME" = "windows" ]; then choco install zip -y; fi
-  - if [ $TRAVIS_OS_NAME == linux ]; then ./integration-tests.sh $NEXUS_VERSION $NEXUS_API_VERSION ./${DELIVERABLE}; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ] && [ "$ARTIFACT_PUBLICATION" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then sonar-scanner -Dsonar.projectKey=030_informado -Dsonar.sources=. -Dsonar.host.url=https://sonarcloud.io -Dsonar.coverage.exclusions=cmd/**,**/*_test.go -Dsonar.go.coverage.reportPaths="coverage.txt"; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ] && [ "$ARTIFACT_PUBLICATION" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then bash <(curl -s https://codecov.io/bash); fi
+  - if [ $TRAVIS_OS_NAME == linux ]; then ./integration-tests.sh ./${DELIVERABLE}; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then sonar-scanner -Dsonar.projectKey=030_informado -Dsonar.sources=. -Dsonar.host.url=https://sonarcloud.io -Dsonar.coverage.exclusions=cmd/**,**/*_test.go -Dsonar.go.coverage.reportPaths="coverage.txt"; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then bash <(curl -s https://codecov.io/bash); fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ] && [ -n "${TRAVIS_TAG}" ]; then cp $DELIVERABLE informado && a2deb -app informado -version ${TRAVIS_TAG} -maintainer "030 <chocolatey030@gmail.com>" -description "informado"; fi
 deploy:
   provider: releases
@@ -55,4 +38,3 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
-    condition: $ARTIFACT_PUBLICATION == true
