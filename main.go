@@ -52,10 +52,19 @@ type feed struct {
 	Feed  xml.Name `xml:"feed"`
 	Entry []Entry  `xml:"entry"`
 }
-
 type Entry struct {
 	XMLName xml.Name `xml:"entry"`
 	Updated string   `xml:"updated"`
+	Title   string   `xml:"title"`
+}
+
+type rss struct {
+	XMLName xml.Name `xml:"rss"`
+	Item    []Item   `xml:"channel>item"`
+}
+type Item struct {
+	XMLName xml.Name `xml:"item"`
+	PubDate string   `xml:"pubDate"`
 	Title   string   `xml:"title"`
 }
 
@@ -83,6 +92,30 @@ func atom(dateStr string, u string) error {
 	return nil
 }
 
+func standard(dateStr string, u string) error {
+	fmt.Println(u)
+	b, err := readURL(u)
+	if err != nil {
+		return err
+	}
+	var r rss
+	if err = xml.Unmarshal(b, &r); err != nil {
+		return err
+	}
+	for i := 0; i < len(r.Item); i++ {
+		pubDate := r.Item[i].PubDate
+		match, err := regexp.MatchString(dateStr, pubDate)
+		if err != nil {
+			return err
+		}
+		if match {
+			fmt.Println(pubDate + " " + r.Item[i].Title)
+		}
+	}
+	fmt.Println("============================================================")
+	return nil
+}
+
 type RSSFeeds struct {
 	Type string `csv:"type"`
 	URL  string `csv:"url"`
@@ -104,7 +137,7 @@ func csv(f string) ([]*RSSFeeds, error) {
 }
 
 func main() {
-	d := flag.String("date", "^2020-05-.*", "Get the RSS feeds from a certain date")
+	d := flag.String("date", "^(2020-05-17T1[1-9]|.*17 May 2020 1[5-9]).*$", "Get the RSS feeds from a certain date")
 	f := flag.String("file", "informado.csv", "The file that contains a list of RSS URLs")
 	flag.Parse()
 	urls, err := csv(*f)
@@ -115,6 +148,10 @@ func main() {
 		switch t := u.Type; t {
 		case "atom":
 			if err := atom(*d, u.URL); err != nil {
+				log.Fatal(err)
+			}
+		case "standard":
+			if err := standard(*d, u.URL); err != nil {
 				log.Fatal(err)
 			}
 		default:

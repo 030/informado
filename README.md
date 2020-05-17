@@ -34,6 +34,15 @@
 
 <a href="https://informado.releasesoftwaremoreoften.com"><img src="https://github.com/030/informado/raw/master/logo/logo.png" height="100"></a>
 
+## usage
+
+Create an informado.csv and add RSS URLs. Once the file has been created, one
+could run:
+
+```bash
+./informado -date "^(2020-05-17T[1-2][7-9]|.*17 May 2020 [1-2][7-9]).*$"
+```
+
 ## Stargazers over time
 
 [![Stargazers over time](https://starchart.cc/030/informado.svg)](https://starchart.cc/030/informado)
