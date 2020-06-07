@@ -34,6 +34,8 @@
 
 <a href="https://informado.releasesoftwaremoreoften.com"><img src="https://github.com/030/informado/raw/master/logo/logo.png" height="100"></a>
 
+Use this Go library or the tool to read various RSS feeds. Note that Atom and Reddit feeds can be parsed as well.
+
 ## usage
 
 Create an informado.csv and add RSS URLs. Once the file has been created, one
