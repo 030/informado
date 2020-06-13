@@ -1,9 +1,10 @@
 author:
   github: 030
   stackexchange: 030
-description: Stay informed using Informado. Informado is a RSS library and tool written in Go that could be used to receive news updates from various feeds.
+description: Informado is a RSS library and tool written in Go that could be used to receive news updates from various feeds.
 plugins:
   - jekyll-seo-tag
 tagline: Go Golang library tool RSS feed parser informado
+title: Stay informed using Informado
 theme: jekyll-theme-cayman
 url: https://informado.releasesoftwaremoreoften.com
