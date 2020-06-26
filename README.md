@@ -36,6 +36,14 @@
 
 Use this Go library or the tool to read various RSS feeds. Note that Atom and Reddit feeds can be parsed as well.
 
+## installation
+
+### Ubuntu
+
+```bash
+sudo snap install informado
+```
+
 ## usage
 
 Create an informado.csv and add RSS URLs. Once the file has been created, one
