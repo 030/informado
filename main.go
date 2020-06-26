@@ -8,10 +8,15 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"time"
 
 	"net/http"
 
 	"github.com/gocarina/gocsv"
+)
+
+const (
+	allDayHours = "[0-2][0-9]"
 )
 
 func hello() string {
@@ -56,6 +61,10 @@ type Entry struct {
 	XMLName xml.Name `xml:"entry"`
 	Updated string   `xml:"updated"`
 	Title   string   `xml:"title"`
+	Link    Link     `xml:"link"`
+}
+type Link struct {
+	Href string `xml:"href,attr"`
 }
 
 type rss struct {
@@ -66,10 +75,10 @@ type Item struct {
 	XMLName xml.Name `xml:"item"`
 	PubDate string   `xml:"pubDate"`
 	Title   string   `xml:"title"`
+	Link    string   `xml:"link"`
 }
 
 func atom(dateStr string, u string) error {
-	fmt.Println(u)
 	b, err := readURL(u)
 	if err != nil {
 		return err
@@ -85,15 +94,13 @@ func atom(dateStr string, u string) error {
 			return err
 		}
 		if match {
-			fmt.Println(updated + " " + f.Entry[i].Title)
+			fmt.Println(updated + " " + f.Entry[i].Title + " " + f.Entry[i].Link.Href)
 		}
 	}
-	fmt.Println("============================================================")
 	return nil
 }
 
 func standard(dateStr string, u string) error {
-	fmt.Println(u)
 	b, err := readURL(u)
 	if err != nil {
 		return err
@@ -109,10 +116,9 @@ func standard(dateStr string, u string) error {
 			return err
 		}
 		if match {
-			fmt.Println(pubDate + " " + r.Item[i].Title)
+			fmt.Println(pubDate + " " + r.Item[i].Title + " " + r.Item[i].Link)
 		}
 	}
-	fmt.Println("============================================================")
 	return nil
 }
 
@@ -136,26 +142,47 @@ func csv(f string) ([]*RSSFeeds, error) {
 	return r, err
 }
 
-func main() {
-	d := flag.String("date", "^(2020-05-17T1[1-9]|.*17 May 2020 1[5-9]).*$", "Get the RSS feeds from a certain date")
-	f := flag.String("file", "informado.csv", "The file that contains a list of RSS URLs")
-	flag.Parse()
-	urls, err := csv(*f)
-	if err != nil {
-		log.Fatal(err)
-	}
+func read(urls []*RSSFeeds, date string) error {
 	for _, u := range urls {
 		switch t := u.Type; t {
 		case "atom":
-			if err := atom(*d, u.URL); err != nil {
-				log.Fatal(err)
+			if err := atom(date, u.URL); err != nil {
+				return err
 			}
 		case "standard":
-			if err := standard(*d, u.URL); err != nil {
-				log.Fatal(err)
+			if err := standard(date, u.URL); err != nil {
+				return err
 			}
 		default:
-			fmt.Printf("Unsupported type '%v'.\n", t)
+			return fmt.Errorf("Unsupported type '%v'.\n", t)
 		}
+	}
+	return nil
+}
+
+func today() string {
+	currentTime := time.Now()
+	currentDate := currentTime.Format("2006-01-02")
+	dayMonthYear := currentTime.Format("02 Jan 2006")
+	return "^(" + currentDate + "T" + allDayHours + "|.*" + dayMonthYear + " " + allDayHours + "):.*$"
+}
+
+func main() {
+	date := flag.String("date", "", "Get the RSS feeds from a certain date: '^(2020-06-26T[0-2][0-9]|.*26 Jun 2020 [0-2][0-9]).*$'")
+	input := flag.String("file", "informado.csv", "The file that contains a list of RSS URLs")
+
+	if *date == "" {
+		*date = today()
+	}
+
+	flag.Parse()
+
+	urls, err := csv(*input)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := read(urls, *date); err != nil {
+		log.Fatal(err)
 	}
 }
