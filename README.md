@@ -31,6 +31,7 @@
 [![codecov](https://codecov.io/gh/030/informado/branch/master/graph/badge.svg)](https://codecov.io/gh/030/informado)
 [![BCH compliance](https://bettercodehub.com/edge/badge/030/informado?branch=master)](https://bettercodehub.com/results/030/informado)
 [![GolangCI](https://golangci.com/badges/github.com/golangci/golangci-web.svg)](https://golangci.com/r/github.com/030/informado)
+[![informado](https://snapcraft.io//informado/badge.svg)](https://snapcraft.io/informado)
 
 <a href="https://informado.releasesoftwaremoreoften.com"><img src="https://github.com/030/informado/raw/master/logo/logo.png" height="100"></a>
 
