@@ -1,9 +1,9 @@
 package main
 
 import (
-	"030/informado/news"
 	"flag"
 	"fmt"
+	"informado/news"
 	"io/ioutil"
 	"log"
 	"net/http"

@@ -1,4 +1,4 @@
-module 030/informado
+module informado
 
 go 1.14
 
