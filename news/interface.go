@@ -1,6 +1,6 @@
 package news
 
 type RSS interface {
-	Parse(url string) (error, RSS)
+	Parse(b []byte) (RSS, error)
 	Print(date string) error
 }

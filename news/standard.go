@@ -17,17 +17,11 @@ type Standard struct {
 	Item    []Item   `xml:"channel>item"`
 }
 
-func (s Standard) Parse(url string) (error, RSS) {
-	fmt.Println("============")
-	fmt.Println(url)
-	byte, err := readURL(url)
-	if err != nil {
-		return err, Standard{}
+func (s Standard) Parse(b []byte) (RSS, error) {
+	if err := xml.Unmarshal(b, &s); err != nil {
+		return Standard{}, err
 	}
-	if err = xml.Unmarshal(byte, &s); err != nil {
-		return err, Standard{}
-	}
-	return nil, s
+	return s, nil
 }
 
 func (s Standard) Print(date string) error {

@@ -20,18 +20,11 @@ type Atom struct {
 	Entry []Entry  `xml:"entry"`
 }
 
-func (a Atom) Parse(url string) (error, RSS) {
-	fmt.Println("============")
-	fmt.Println(url)
-	byte, err := readURL(url)
-	if err != nil {
-		return err, Atom{}
+func (a Atom) Parse(b []byte) (RSS, error) {
+	if err := xml.Unmarshal(b, &a); err != nil {
+		return Atom{}, err
 	}
-
-	if err = xml.Unmarshal(byte, &a); err != nil {
-		return err, Atom{}
-	}
-	return nil, a
+	return a, nil
 }
 
 func (a Atom) Print(date string) error {
