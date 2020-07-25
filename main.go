@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/gocarina/gocsv"
@@ -48,7 +49,6 @@ func readURL(u string) ([]byte, error) {
 }
 
 func rss(r news.RSS, url, date string) error {
-	fmt.Println("============")
 	byte, err := readURL(url)
 	if err != nil {
 		return err
@@ -57,7 +57,9 @@ func rss(r news.RSS, url, date string) error {
 	if err != nil {
 		return err
 	}
-	a.Print(date)
+	if err := a.Print(date); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -66,8 +68,9 @@ func hello() string {
 }
 
 type RSSFeeds struct {
-	Type string `csv:"type"`
-	URL  string `csv:"url"`
+	Type  string `csv:"type"`
+	URL   string `csv:"url"`
+	Error error
 }
 
 func csv(f string) ([]*RSSFeeds, error) {
@@ -85,19 +88,39 @@ func csv(f string) ([]*RSSFeeds, error) {
 	return r, err
 }
 
+var wg sync.WaitGroup
+
+func newsItems(c chan *RSSFeeds, r *RSSFeeds, date string) {
+	defer wg.Done()
+	var e error
+
+	switch t := r.Type; t {
+	case "atom":
+		if err := rss(news.Atom{}, r.URL, date); err != nil {
+			e = err
+		}
+	case "standard":
+		if err := rss(news.Standard{}, r.URL, date); err != nil {
+			e = err
+		}
+	default:
+		e = fmt.Errorf("Unsupported type '%v'", t)
+	}
+
+	c <- &RSSFeeds{r.Type, r.URL, e}
+}
+
 func read(urls []*RSSFeeds, date string) error {
-	for _, u := range urls {
-		switch t := u.Type; t {
-		case "atom":
-			if err := rss(news.Atom{}, u.URL, date); err != nil {
-				return err
-			}
-		case "standard":
-			if err := rss(news.Standard{}, u.URL, date); err != nil {
-				return err
-			}
-		default:
-			return fmt.Errorf("Unsupported type '%v'", t)
+	c := make(chan *RSSFeeds, len(urls))
+	for _, a := range urls {
+		wg.Add(1)
+		go newsItems(c, a, date)
+	}
+	wg.Wait()
+	close(c)
+	for item := range c {
+		if item.Error != nil {
+			return fmt.Errorf("Type: '%v'. URL: '%v', Err: '%v'", item.Type, item.URL, item.Error)
 		}
 	}
 	return nil
@@ -110,14 +133,15 @@ func today() string {
 	return "^(" + currentDate + "T" + allDayHours + "|.*" + dayMonthYear + " " + allDayHours + "):.*$"
 }
 
-func parse(input, date string) {
+func parse(input, date string) error {
 	urls, err := csv(input)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	if err := read(urls, date); err != nil {
-		log.Fatal(err)
+		return err
 	}
+	return nil
 }
 
 func main() {
@@ -130,5 +154,7 @@ func main() {
 
 	flag.Parse()
 
-	parse(*input, *date)
+	if err := parse(*input, *date); err != nil {
+		log.Fatal(err)
+	}
 }
