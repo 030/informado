@@ -1,16 +1,14 @@
 package main
 
 import (
-	"encoding/xml"
 	"flag"
 	"fmt"
+	"informado/news"
 	"io/ioutil"
 	"log"
-	"os"
-	"regexp"
-	"time"
-
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/gocarina/gocsv"
 )
@@ -18,10 +16,6 @@ import (
 const (
 	allDayHours = "[0-2][0-9]"
 )
-
-func hello() string {
-	return "world"
-}
 
 func readURL(u string) ([]byte, error) {
 	var bodyBytes []byte
@@ -53,73 +47,22 @@ func readURL(u string) ([]byte, error) {
 	return bodyBytes, nil
 }
 
-type feed struct {
-	Feed  xml.Name `xml:"feed"`
-	Entry []Entry  `xml:"entry"`
-}
-type Entry struct {
-	XMLName xml.Name `xml:"entry"`
-	Updated string   `xml:"updated"`
-	Title   string   `xml:"title"`
-	Link    Link     `xml:"link"`
-}
-type Link struct {
-	Href string `xml:"href,attr"`
-}
-
-type rss struct {
-	XMLName xml.Name `xml:"rss"`
-	Item    []Item   `xml:"channel>item"`
-}
-type Item struct {
-	XMLName xml.Name `xml:"item"`
-	PubDate string   `xml:"pubDate"`
-	Title   string   `xml:"title"`
-	Link    string   `xml:"link"`
-}
-
-func atom(dateStr string, u string) error {
-	b, err := readURL(u)
+func rss(r news.RSS, url, date string) error {
+	fmt.Println("============")
+	byte, err := readURL(url)
 	if err != nil {
 		return err
 	}
-	var f feed
-	if err = xml.Unmarshal(b, &f); err != nil {
-		return err
-	}
-	for i := 0; i < len(f.Entry); i++ {
-		updated := f.Entry[i].Updated
-		match, err := regexp.MatchString(dateStr, updated)
-		if err != nil {
-			return err
-		}
-		if match {
-			fmt.Println(updated + " " + f.Entry[i].Title + " " + f.Entry[i].Link.Href)
-		}
-	}
-	return nil
-}
-
-func standard(dateStr string, u string) error {
-	b, err := readURL(u)
+	a, err := r.Parse(byte)
 	if err != nil {
 		return err
 	}
-	var r rss
-	if err = xml.Unmarshal(b, &r); err != nil {
-		return err
-	}
-	for i := 0; i < len(r.Item); i++ {
-		pubDate := r.Item[i].PubDate
-		match, err := regexp.MatchString(dateStr, pubDate)
-		if err != nil {
-			return err
-		}
-		if match {
-			fmt.Println(pubDate + " " + r.Item[i].Title + " " + r.Item[i].Link)
-		}
-	}
+	a.Print(date)
 	return nil
+}
+
+func hello() string {
+	return "world"
 }
 
 type RSSFeeds struct {
@@ -135,10 +78,10 @@ func csv(f string) ([]*RSSFeeds, error) {
 	defer u.Close()
 
 	r := []*RSSFeeds{}
-
 	if err := gocsv.UnmarshalFile(u, &r); err != nil {
 		return nil, err
 	}
+
 	return r, err
 }
 
@@ -146,15 +89,15 @@ func read(urls []*RSSFeeds, date string) error {
 	for _, u := range urls {
 		switch t := u.Type; t {
 		case "atom":
-			if err := atom(date, u.URL); err != nil {
+			if err := rss(news.Atom{}, u.URL, date); err != nil {
 				return err
 			}
 		case "standard":
-			if err := standard(date, u.URL); err != nil {
+			if err := rss(news.Standard{}, u.URL, date); err != nil {
 				return err
 			}
 		default:
-			return fmt.Errorf("Unsupported type '%v'.\n", t)
+			return fmt.Errorf("Unsupported type '%v'", t)
 		}
 	}
 	return nil
@@ -167,6 +110,16 @@ func today() string {
 	return "^(" + currentDate + "T" + allDayHours + "|.*" + dayMonthYear + " " + allDayHours + "):.*$"
 }
 
+func parse(input, date string) {
+	urls, err := csv(input)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := read(urls, date); err != nil {
+		log.Fatal(err)
+	}
+}
+
 func main() {
 	date := flag.String("date", "", "Get the RSS feeds from a certain date: '^(2020-06-26T[0-2][0-9]|.*26 Jun 2020 [0-2][0-9]).*$'")
 	input := flag.String("file", "informado.csv", "The file that contains a list of RSS URLs")
@@ -177,12 +130,5 @@ func main() {
 
 	flag.Parse()
 
-	urls, err := csv(*input)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err := read(urls, *date); err != nil {
-		log.Fatal(err)
-	}
+	parse(*input, *date)
 }
