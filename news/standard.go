@@ -3,7 +3,6 @@ package news
 import (
 	"encoding/xml"
 	"fmt"
-	"regexp"
 )
 
 type Item struct {
@@ -24,15 +23,21 @@ func (s Standard) Parse(b []byte) (RSS, error) {
 	return s, nil
 }
 
-func (s Standard) Print(date string) error {
+func (s Standard) Print() error {
 	for i := 0; i < len(s.Item); i++ {
-		pubDate := s.Item[i].PubDate
-		match, err := regexp.MatchString(date, pubDate)
+		updated := s.Item[i].PubDate
+		updatedInt64, err := dateToEpoch(updated)
 		if err != nil {
 			return err
 		}
-		if match {
-			fmt.Println(pubDate + " " + s.Item[i].Title.Name + " " + s.Item[i].Link)
+
+		l, err := lastTimeInformadoWasRun()
+		if err != nil {
+			return err
+		}
+
+		if updatedInt64 > l {
+			fmt.Println(updated + " " + s.Item[i].Title.Name + " " + s.Item[i].Link)
 		}
 	}
 	return nil

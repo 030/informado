@@ -3,7 +3,6 @@ package news
 import (
 	"encoding/xml"
 	"fmt"
-	"regexp"
 )
 
 type Link struct {
@@ -27,14 +26,20 @@ func (a Atom) Parse(b []byte) (RSS, error) {
 	return a, nil
 }
 
-func (a Atom) Print(date string) error {
+func (a Atom) Print() error {
 	for i := 0; i < len(a.Entry); i++ {
 		updated := a.Entry[i].Updated
-		match, err := regexp.MatchString(date, updated)
+		updatedInt64, err := dateToEpoch(updated)
 		if err != nil {
 			return err
 		}
-		if match {
+
+		l, err := lastTimeInformadoWasRun()
+		if err != nil {
+			return err
+		}
+
+		if updatedInt64 > l {
 			fmt.Println(updated + " " + a.Entry[i].Title.Name + " " + a.Entry[i].Link.Href)
 		}
 	}

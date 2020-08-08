@@ -51,8 +51,13 @@ Create an informado.csv and add RSS URLs. Once the file has been created, one
 could run:
 
 ```bash
-./informado -date="^(2020-05-17T[1-2][7-9]|.*17 May 2020 [1-2][7-9]).*$"
+./informado
 ```
+
+Once informado has been completed, a `.informado` has been created that
+contains the Epoch time when the tool was run. The next time informado is run
+it will lookup the time and only show newer messages. If one would like to view
+all messages, then the time has to be changed in the `.informado` file. 
 
 ## Stargazers over time
 

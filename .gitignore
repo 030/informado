@@ -2,3 +2,4 @@ informado*
 *sha512.txt
 *.snap
 .snapcraft
+.informado

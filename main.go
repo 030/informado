@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"sync"
 	"time"
 
@@ -48,7 +49,7 @@ func readURL(u string) ([]byte, error) {
 	return bodyBytes, nil
 }
 
-func rss(r news.RSS, url, date string) error {
+func rss(r news.RSS, url string) error {
 	byte, err := readURL(url)
 	if err != nil {
 		return err
@@ -57,14 +58,10 @@ func rss(r news.RSS, url, date string) error {
 	if err != nil {
 		return err
 	}
-	if err := a.Print(date); err != nil {
+	if err := a.Print(); err != nil {
 		return err
 	}
 	return nil
-}
-
-func hello() string {
-	return "world"
 }
 
 type RSSFeeds struct {
@@ -90,17 +87,17 @@ func csv(f string) ([]*RSSFeeds, error) {
 
 var wg sync.WaitGroup
 
-func newsItems(c chan *RSSFeeds, r *RSSFeeds, date string) {
+func newsItems(c chan *RSSFeeds, r *RSSFeeds) {
 	defer wg.Done()
 	var e error
 
 	switch t := r.Type; t {
 	case "atom":
-		if err := rss(news.Atom{}, r.URL, date); err != nil {
+		if err := rss(news.Atom{}, r.URL); err != nil {
 			e = err
 		}
 	case "standard":
-		if err := rss(news.Standard{}, r.URL, date); err != nil {
+		if err := rss(news.Standard{}, r.URL); err != nil {
 			e = err
 		}
 	default:
@@ -110,11 +107,11 @@ func newsItems(c chan *RSSFeeds, r *RSSFeeds, date string) {
 	c <- &RSSFeeds{r.Type, r.URL, e}
 }
 
-func read(urls []*RSSFeeds, date string) error {
+func read(urls []*RSSFeeds) error {
 	c := make(chan *RSSFeeds, len(urls))
 	for _, a := range urls {
 		wg.Add(1)
-		go newsItems(c, a, date)
+		go newsItems(c, a)
 	}
 	wg.Wait()
 	close(c)
@@ -126,35 +123,45 @@ func read(urls []*RSSFeeds, date string) error {
 	return nil
 }
 
-func today() string {
-	currentTime := time.Now()
-	currentDate := currentTime.Format("2006-01-02")
-	dayMonthYear := currentTime.Format("02 Jan 2006")
-	return "^(" + currentDate + "T" + allDayHours + "|.*" + dayMonthYear + " " + allDayHours + "):.*$"
-}
-
-func parse(input, date string) error {
+func parse(input string) error {
 	urls, err := csv(input)
 	if err != nil {
 		return err
 	}
-	if err := read(urls, date); err != nil {
+	if err := read(urls); err != nil {
 		return err
 	}
 	return nil
 }
 
-func main() {
-	date := flag.String("date", "", "Get the RSS feeds from a certain date: '^(2020-06-26T[0-2][0-9]|.*26 Jun 2020 [0-2][0-9]).*$'")
-	input := flag.String("file", "informado.csv", "The file that contains a list of RSS URLs")
+func currentTimeToDisk() error {
+	now := time.Now()
+	epoch := now.Unix()
 
-	if *date == "" {
-		*date = today()
+	file, err := os.Create(".informado")
+	if err != nil {
+		return err
 	}
+	defer file.Close()
+
+	_, err = file.WriteString(strconv.FormatInt(epoch, 10))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func main() {
+	input := flag.String("file", "informado.csv", "The file that contains a list of RSS URLs")
 
 	flag.Parse()
 
-	if err := parse(*input, *date); err != nil {
+	if err := parse(*input); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := currentTimeToDisk(); err != nil {
 		log.Fatal(err)
 	}
 }
