@@ -10,6 +10,6 @@ None
 ### Changed
 - Only show the latest news that has not been read
 
-[Unreleased]: https://github.com/030/n3dr/compare/2.0.0...HEAD
-[2.0.0]: https://github.com/030/n3dr/compare/1.4.0...2.0.0
-[1.4.0]: https://github.com/030/n3dr/releases/tag/1.4.0
+[Unreleased]: https://github.com/030/informado/compare/2.0.0...HEAD
+[2.0.0]: https://github.com/030/informado/compare/1.4.0...2.0.0
+[1.4.0]: https://github.com/030/informado/releases/tag/1.4.0
