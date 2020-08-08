@@ -15,10 +15,6 @@ import (
 	"github.com/gocarina/gocsv"
 )
 
-const (
-	allDayHours = "[0-2][0-9]"
-)
-
 func readURL(u string) ([]byte, error) {
 	var bodyBytes []byte
 
