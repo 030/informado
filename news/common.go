@@ -39,7 +39,7 @@ func dateToEpoch(date string) (int64, error) {
 }
 
 func lastTimeInformadoWasRun() (int64, error) {
-	date, err := ioutil.ReadFile(".informado")
+	date, err := ioutil.ReadFile("/tmp/some-repo3/.informado")
 	if err != nil {
 		return 0, err
 	}

@@ -18,10 +18,6 @@ atom,https://www.theregister.co.uk/devops/headlines.atom
 standard,https://www.ansible.com/blog/rss.xml
 atom,https://devops.stackexchange.com/feeds/tag?tagnames=n3dr&sort=newest
 standard,https://forums.aws.amazon.com/rss/rssmessages.jspa?threadID=301770
-standard,https://docker-hub-rss.now.sh/grafana/grafana.atom?includeRegex=%5E(%5Cd%2B%5C.)%7B2%7D%5Cd%2B%24
-standard,https://docker-hub-rss.now.sh/prom/prometheus.atom?includeRegex=^v(\d%2B\.){2}\d%2B%24
-standard,https://docker-hub-rss.now.sh/prom/blackbox-exporter.atom?includeRegex=^v(\d%2B\.){2}\d%2B%24
-standard,https://docker-hub-rss.now.sh/_/alpine.atom?includeRegex=%5E(%5Cd%2B%5C.)%7B2%7D%5Cd%2B%24
 atom,https://github.com/030.private.atom?token=ABZNBMFVFT52ZMDT7EBORT55AQ3GK
 standard,https://www.nu.nl/rss/Algemeen
 standard,https://www.ad.nl/utrecht/rss.xml

@@ -12,6 +12,12 @@ import (
 	"sync"
 	"time"
 
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing/object"
+	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
+
+	// "github.com/go-git/go-git/v5"
+	// "github.com/go-git/go-git/v5/plumbing/transport/ssh"
 	"github.com/gocarina/gocsv"
 )
 
@@ -134,7 +140,7 @@ func currentTimeToDisk() error {
 	now := time.Now()
 	epoch := now.Unix()
 
-	file, err := os.Create(".informado")
+	file, err := os.Create("/tmp/some-repo3/.informado")
 	if err != nil {
 		return err
 	}
@@ -153,11 +159,109 @@ func main() {
 
 	flag.Parse()
 
+	// Clone the given repository to the given directory
+	//Info("git clone %s %s --recursive", "git@gist.github.com:295af749c3f61b3e420a2b164ec407c4.git", ".")
+	// url := "git@gist.github.com:295af749c3f61b3e420a2b164ec407c4.git"
+	url := "git@github.com:030/informado-time.git"
+
+	publicKeys, err := ssh.NewPublicKeysFromFile("git", "/home/ben/.ssh/id_rsa_informado", "oh oh oh 123")
+	if err != nil {
+		fmt.Println(err)
+	}
+	r, err := git.PlainClone("/tmp/some-repo3", false, &git.CloneOptions{
+		URL:      url,
+		Auth:     publicKeys,
+		Progress: os.Stdout,
+	})
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// ... retrieving the branch being pointed by HEAD
+	ref, err := r.Head()
+	//CheckIfError(err)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// ... retrieving the commit object
+	commit, err := r.CommitObject(ref.Hash())
+	//	CheckIfError(err)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(commit)
+
+	//
+	//
+	//
 	if err := parse(*input); err != nil {
 		log.Fatal(err)
 	}
+	//
+	//
+	//
 
 	if err := currentTimeToDisk(); err != nil {
 		log.Fatal(err)
+	}
+
+	//
+	// commit
+	//
+
+	r, err = git.PlainOpen("/tmp/some-repo3")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	w, err := r.Worktree()
+	// Adds the new file to the staging area.
+
+	_, err = w.Add(".informado")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// We can verify the current status of the worktree using the method Status.
+
+	status, err := w.Status()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(status)
+
+	// Commits the current staging area to the repository, with the new file
+	// just created. We should provide the object.Signature of Author of the
+	// commit Since version 5.0.1, we can omit the Author signature, being read
+	// from the git config files.
+
+	commit2, err := w.Commit("example go-git commit", &git.CommitOptions{
+		Author: &object.Signature{
+			Name:  "John Doe",
+			Email: "john@doe.org",
+			When:  time.Now(),
+		},
+	})
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// Prints the current HEAD to verify that all worked well.
+
+	obj, err := r.CommitObject(commit2)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(obj)
+
+	err = r.Push(&git.PushOptions{})
+	if err != nil {
+		fmt.Println(err)
 	}
 }
