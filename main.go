@@ -15,10 +15,8 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
-
-	// "github.com/go-git/go-git/v5"
-	// "github.com/go-git/go-git/v5/plumbing/transport/ssh"
 	"github.com/gocarina/gocsv"
+	"github.com/hashicorp/go-retryablehttp"
 )
 
 func readURL(u string) ([]byte, error) {
@@ -30,10 +28,16 @@ func readURL(u string) ([]byte, error) {
 		return nil, err
 	}
 
+	retryClient := retryablehttp.NewClient()
+	retryClient.RetryMax = 10
+	retryClient.Logger = nil
+
+	standardClient := retryClient.StandardClient() // *http.Client
+
 	// Required to parse Reddit feeds
 	req.Header.Set("user-agent", "hello:world:v0.0 (by /u/ocelost)")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := standardClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
