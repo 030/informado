@@ -1,7 +1,6 @@
 type,url
 standard,https://weather-broker-cdn.api.bbci.co.uk/en/forecast/rss/3day/2745912
 atom,http://feeds.feedburner.com/PythonInsider
-standard,http://feeds.nos.nl/nosnieuwsalgemeen
 atom,http://blog.golang.org/feed.atom
 standard,https://aws.amazon.com/blogs/devops/feed
 standard,https://aws.amazon.com/new/feed
@@ -20,8 +19,5 @@ atom,https://devops.stackexchange.com/feeds/tag?tagnames=n3dr&sort=newest
 standard,https://forums.aws.amazon.com/rss/rssmessages.jspa?threadID=301770
 atom,https://github.com/030.private.atom?token=ABZNBMFVFT52ZMDT7EBORT55AQ3GK
 standard,https://www.nu.nl/rss/Algemeen
-standard,https://www.ad.nl/utrecht/rss.xml
-standard,https://www.ad.nl/binnenland/rss.xml
-standard,https://www.ad.nl/buitenland/rss.xml
 standard,https://www.standaard.be/rss/section/1f2838d4-99ea-49f0-9102-138784c7ea7c
 atom,https://rss.dw.com/atom/rss-en-all
