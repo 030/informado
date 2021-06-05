@@ -5,6 +5,7 @@
 ### Added
 
 - Dockerfile.
+- GitHub Workflows
 
 ### Changed
 

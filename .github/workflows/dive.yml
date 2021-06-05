@@ -1,0 +1,16 @@
+name: "Dive CI"
+on: [push]
+jobs:
+  dive:
+    runs-on: ubuntu-latest
+    name: Analyze image efficiency
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build image
+        run: docker build -t utrecht/informado:${{ github.sha }} .
+      - name: Dive
+        uses: yuichielectric/dive-action@0.0.4
+        with:
+          image: utrecht/informado:${{ github.sha }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}

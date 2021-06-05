@@ -1,0 +1,70 @@
+---
+name: Release
+on:
+  push:
+    tags:
+      - "*"
+jobs:
+  release:
+    name: Create Release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-10.15
+            shasum: shasum -a 512
+          - os: ubuntu-20.04
+            shasum: sha512sum
+          - os: windows-2019
+            shasum: sha512sum
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.16.3
+      - name: Set N3DR deliverable environment variable
+        run: echo "informado-deliverable=informado-${{ matrix.os }}" >> $GITHUB_ENV
+        if: |
+          ${{ startsWith(matrix.os, 'mac') || startsWith(matrix.os, 'ubuntu') }}
+      - name: Set N3DR deliverable environment variable on Windows
+        run: echo "informado-deliverable=informado-${{ matrix.os }}" >> $env:GITHUB_ENV
+        if: ${{ startsWith(matrix.os, 'windows') }}
+      - name: Use the value
+        run: |
+          echo "${{ env.informado-deliverable }}"
+      - name: Create release
+        run: ./scripts/build.sh
+        env:
+          N3DR_DELIVERABLE: ${{ env.informado-deliverable }}
+          GITHUB_TAG: ${{ github.ref }}
+          SHA512_CMD: ${{ matrix.shasum }}
+        if: |
+          ${{ startsWith(matrix.os, 'mac') || startsWith(matrix.os, 'ubuntu') }}
+      - name: Create release windows
+        shell: cmd
+        # yamllint disable rule:line-length
+        run: |
+          echo "GITHUB_TAG: '${{ github.ref }}'"
+          echo "N3DR_DELIVERABLE: '${{ env.informado-deliverable }}'"
+          cd cmd/informado
+          go build -ldflags "-X main.Version=${{ github.ref }}" -o "${{ env.informado-deliverable }}"
+          sha512sum "${{ env.informado-deliverable }}" > "${{ env.informado-deliverable }}.sha512.txt"
+          chmod +x "${{ env.informado-deliverable }}"
+          ls informado-windows-2019
+        if: ${{ startsWith(matrix.os, 'windows') }}
+        # yamllint enable rule:line-length
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: cmd/informado/${{ env.informado-deliverable }}
+          asset_name: ${{ env.informado-deliverable }}
+          tag: ${{ github.ref }}
+      - name: Upload checksums
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: cmd/informado/${{ env.informado-deliverable }}.sha512.txt
+          asset_name: ${{ env.informado-deliverable }}.sha512.txt
+          tag: ${{ github.ref }}
