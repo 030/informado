@@ -1,4 +1,4 @@
-# informado
+# Informado
 
 [![GoDoc Widget]][GoDoc]
 [![Build Status](https://travis-ci.org/030/informado.svg?branch=master)](https://travis-ci.org/030/informado)
@@ -38,7 +38,7 @@
 
 Use this Go library or the tool to read various RSS feeds. Note that Atom and Reddit feeds can be parsed as well.
 
-## installation
+## Installation
 
 ### Ubuntu
 
@@ -46,10 +46,16 @@ Use this Go library or the tool to read various RSS feeds. Note that Atom and Re
 sudo snap install informado
 ```
 
-## usage
+## Usage
 
-Create an informado.csv and add RSS URLs. Once the file has been created, one
-could run:
+Create an `informado.csv` and add RSS URLs:
+
+```bash
+type,url
+standard,https://www.nu.nl/rss/Algemeen
+```
+
+Once the file has been created, run:
 
 ```bash
 ./informado

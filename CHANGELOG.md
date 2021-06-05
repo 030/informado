@@ -8,6 +8,7 @@
 
 ### Changed
 
+- Instructions in the README.md.
 - Project structure.
 
 ## [2.0.0] - 2020-08-08
