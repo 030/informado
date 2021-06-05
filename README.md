@@ -34,7 +34,7 @@
 [![informado](https://snapcraft.io//informado/badge.svg)](https://snapcraft.io/informado)
 [![codebeat badge](https://codebeat.co/badges/60706232-493c-4527-b0c9-9e38f682b68c)](https://codebeat.co/projects/github-com-030-informado-master)
 
-<a href="https://informado.releasesoftwaremoreoften.com"><img src="https://github.com/030/informado/raw/master/logo/logo.png" height="100"></a>
+<a href="https://informado.releasesoftwaremoreoften.com"><img src="https://github.com/030/informado/raw/master/assets/logo/logo.png" height="100"></a>
 
 Use this Go library or the tool to read various RSS feeds. Note that Atom and Reddit feeds can be parsed as well.
 

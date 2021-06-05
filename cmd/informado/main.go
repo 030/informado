@@ -3,7 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	"informado/news"
+	"informado/internal/news"
+
 	"io/ioutil"
 	"log"
 	"net/http"

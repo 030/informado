@@ -1,5 +1,4 @@
-informado*
-*sha512.txt
+cmd/informado/informado
+informado.csv
 *.snap
 .snapcraft
-.informado

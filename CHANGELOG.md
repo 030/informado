@@ -1,13 +1,19 @@
 # Changelog
 
 ## [Unreleased]
-None
+
+### Changed
+
+- Project structure.
 
 ## [2.0.0] - 2020-08-08
+
 ### Added
+
 - Instructions how to get all RSS news feeds
 
 ### Changed
+
 - Only show the latest news that has not been read
 
 [Unreleased]: https://github.com/030/informado/compare/2.0.0...HEAD
