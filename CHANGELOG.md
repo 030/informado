@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Dockerfile.
+
 ### Changed
 
 - Project structure.
