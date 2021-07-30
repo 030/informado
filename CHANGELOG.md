@@ -12,6 +12,10 @@
 - Instructions in the README.md.
 - Project structure.
 
+### Fixed
+
+- Timestamp file was read before it was created.
+
 ## [2.0.0] - 2020-08-08
 
 ### Added

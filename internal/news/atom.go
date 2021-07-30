@@ -26,7 +26,7 @@ func (a Atom) Parse(b []byte) (RSS, error) {
 	return a, nil
 }
 
-func (a Atom) Print() error {
+func (a Atom) Print(lastTimeInformadoWasRun int64) error {
 	for i := 0; i < len(a.Entry); i++ {
 		updated := a.Entry[i].Updated
 		updatedInt64, err := dateToEpoch(updated)
@@ -34,12 +34,7 @@ func (a Atom) Print() error {
 			return err
 		}
 
-		l, err := lastTimeInformadoWasRun()
-		if err != nil {
-			return err
-		}
-
-		if updatedInt64 > l {
+		if updatedInt64 > lastTimeInformadoWasRun {
 			fmt.Println(updated + " " + a.Entry[i].Title.Name + " " + a.Entry[i].Link.Href)
 		}
 	}

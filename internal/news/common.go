@@ -2,10 +2,7 @@ package news
 
 import (
 	"fmt"
-	"io/ioutil"
 	"regexp"
-	"strconv"
-	"strings"
 	"time"
 )
 
@@ -36,18 +33,4 @@ func dateToEpoch(date string) (int64, error) {
 		return 0, err
 	}
 	return t.Unix(), nil
-}
-
-func lastTimeInformadoWasRun() (int64, error) {
-	date, err := ioutil.ReadFile(".informado")
-	if err != nil {
-		return 0, err
-	}
-
-	n, err := strconv.ParseInt(strings.TrimSuffix(string(date), "\n"), 10, 64)
-	if err != nil {
-		return 0, err
-	}
-
-	return n, nil
 }

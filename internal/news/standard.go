@@ -23,7 +23,7 @@ func (s Standard) Parse(b []byte) (RSS, error) {
 	return s, nil
 }
 
-func (s Standard) Print() error {
+func (s Standard) Print(lastTimeInformadoWasRun int64) error {
 	for i := 0; i < len(s.Item); i++ {
 		updated := s.Item[i].PubDate
 		updatedInt64, err := dateToEpoch(updated)
@@ -31,12 +31,7 @@ func (s Standard) Print() error {
 			return err
 		}
 
-		l, err := lastTimeInformadoWasRun()
-		if err != nil {
-			return err
-		}
-
-		if updatedInt64 > l {
+		if updatedInt64 > lastTimeInformadoWasRun {
 			fmt.Println(updated + " " + s.Item[i].Title.Name + " " + s.Item[i].Link)
 		}
 	}
