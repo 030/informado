@@ -10,7 +10,7 @@ RUN apk add git && \
     CGO_ENABLED=0 go build && \
     cp $PROJECT /$PROJECT
 
-FROM alpine:3.13.5
+FROM alpine:3.14.0
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /informado /usr/local/bin/informado
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
