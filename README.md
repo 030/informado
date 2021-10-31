@@ -34,9 +34,11 @@
 [![informado](https://snapcraft.io//informado/badge.svg)](https://snapcraft.io/informado)
 [![codebeat badge](https://codebeat.co/badges/60706232-493c-4527-b0c9-9e38f682b68c)](https://codebeat.co/projects/github-com-030-informado-master)
 
-<a href="https://informado.releasesoftwaremoreoften.com"><img src="https://github.com/030/informado/raw/master/assets/logo/logo.png" height="100"></a>
+<a href="https://informado.releasesoftwaremoreoften.com">\
+<img src="https://github.com/030/informado/raw/master/assets/logo/logo.png" height="100"></a>
 
-Use this Go library or the tool to read various RSS feeds. Note that Atom and Reddit feeds can be parsed as well.
+Use this Go library or the tool to read various RSS feeds. Note that Atom and
+Reddit feeds can be parsed as well.
 
 ## Installation
 
@@ -48,11 +50,17 @@ sudo snap install informado
 
 ## Usage
 
-Create an `informado.csv` and add RSS URLs:
+Create an `informado` directory:
+
+```bash
+mkdir ~/.informado
+```
+
+and subsequently an `rss-feed-urls.csv` file:
 
 ```bash
 type,url
-standard,https://www.nu.nl/rss/Algemeen
+atom,https://github.com/golang/go/releases.atom
 ```
 
 Once the file has been created, run:
@@ -61,10 +69,27 @@ Once the file has been created, run:
 ./informado
 ```
 
-Once informado has been completed, a `.informado` has been created that
-contains the Epoch time when the tool was run. The next time informado is run
-it will lookup the time and only show newer messages. If one would like to view
-all messages, then the time has to be changed in the `.informado` file. 
+Once informado has been completed, a `~/.informado/last-run-time.txt` has been
+created that contains the Epoch time when the tool was run. The next time
+informado is run it will lookup the time and only show newer messages. If one
+would like to view all messages, then the time has to be changed in the
+`.informado` file.
+
+```bash
+docker run \
+  -v /home/${USER}/.informado:/home/informado/.informado \
+  -it informado:3.0.0
+```
+
+### Slack
+
+Create a `~/.informado/creds.yml` file:
+
+```bash
+---
+slackChannel: x
+slackToken: y
+```
 
 ## Stargazers over time
 

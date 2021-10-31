@@ -2,21 +2,26 @@
 
 ## [Unreleased]
 
+## [3.0.0] - 2021-11-01
+
 ### Added
 
 - Dockerfile.
-- GitHub Workflows
+- GitHub Workflows.
+- Send news to Slack.
+- Run Informado as cronjob in k8s/openshift.
 
 ### Changed
 
 - Instructions in the README.md.
 - Project structure.
+- Required file structure in order to make informado work.
 
 ### Fixed
 
 - Timestamp file was read before it was created.
 
-## [2.0.0] - 2020-08-08
+## [2.0.0] - 2021-08-08
 
 ### Added
 
@@ -26,6 +31,7 @@
 
 - Only show the latest news that has not been read
 
-[Unreleased]: https://github.com/030/informado/compare/2.0.0...HEAD
+[Unreleased]: https://github.com/030/informado/compare/3.0.0...HEAD
+[3.0.0]: https://github.com/030/informado/compare/2.0.0...3.0.0
 [2.0.0]: https://github.com/030/informado/compare/1.4.0...2.0.0
 [1.4.0]: https://github.com/030/informado/releases/tag/1.4.0

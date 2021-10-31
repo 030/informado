@@ -1,24 +1,21 @@
+---
 name: informado
-base: core18
-version: "2.0.0"
+base: core20
+version: '3.0.0'
 summary: Stay informed using Informado
 description: |
-  Use this Go library or the tool to read various RSS feeds. Note that Atom and Reddit feeds can be
-  parsed as well.
-
+  Use this Go library or the tool to read various RSS feeds. Note that Atom
+  and Reddit feeds can be parsed as well.
 grade: stable
 confinement: strict
-
 apps:
   informado:
     command: informado
-
 plugs:
   informado-home:
     interface: home
   informado-network:
     interface: network
-
 parts:
   informado:
     plugin: go

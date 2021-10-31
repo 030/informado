@@ -42,15 +42,16 @@ jobs:
           sudo apt-get update
           sudo apt-get install bats -y
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
-      - name: Set N3DR deliverable environment variable
-        run: echo "informado-deliverable=informado-${{ matrix.os }}" >> $GITHUB_ENV
+      - name: Set deliverable environment variable
+        run: |
+          echo "deliverable=informado-${{ matrix.os }}" >> $GITHUB_ENV
       - name: Use the value
         run: |
-          echo "${{ env.informado-deliverable }}"
+          echo "${{ env.deliverable }}"
       - name: Build
         run: ./scripts/build.sh
         env:
-          N3DR_DELIVERABLE: ${{ env.informado-deliverable }}
+          INFORMADO_DELIVERABLE: ${{ env.deliverable }}
           SHA512_CMD: ${{ matrix.shasum }}
       - name: Quality
         run: |
@@ -63,9 +64,4 @@ jobs:
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
       - name: Integration test
         run: ./test/integration-tests.sh
-        env:
-          N3DR_DELIVERABLE: ${{ env.informado-deliverable }}
-          NEXUS_VERSION: ${{ matrix.nexus-version }}
-          NEXUS_API_VERSION: ${{ matrix.nexus-api-version }}
-          N3DR_APT_GPG_SECRET: ${{ secrets.N3DR_APT_GPG_SECRET }}
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
