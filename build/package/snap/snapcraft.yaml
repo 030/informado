@@ -18,6 +18,19 @@ plugs:
     interface: network
 parts:
   informado:
-    plugin: go
-    source: .
-    go-importpath: github.com/030/informado
+    plugin: nil
+    build-packages:
+      - curl
+    override-build: |
+      cd $SNAPCRAFT_PART_INSTALL
+      export INFORMADO_URL=https://github.com/030/informado/releases/download
+      export INFORMADO_URL_VERSION=${INFORMADO_URL}/${SNAPCRAFT_PROJECT_VERSION}
+      curl -fL ${INFORMADO_URL_VERSION}/informado-ubuntu-20.04 \
+        -o informado-ubuntu-20.04
+      curl -fL ${INFORMADO_URL_VERSION}/informado-ubuntu-20.04.sha512.txt \
+        -o informado-sha.txt
+      sha512sum -c informado-sha.txt
+      mv informado-ubuntu-20.04 informado
+      chmod +x ./informado
+      ./informado --version |\
+        grep "^informado version refs/tags/${SNAPCRAFT_PROJECT_VERSION}$"
