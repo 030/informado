@@ -51,7 +51,7 @@ jobs:
       - name: Build
         run: ./scripts/build.sh
         env:
-          INFORMADO_DELIVERABLE: ${{ env.deliverable }}
+          DELIVERABLE: ${{ env.deliverable }}
           SHA512_CMD: ${{ matrix.shasum }}
       - name: Quality
         run: |

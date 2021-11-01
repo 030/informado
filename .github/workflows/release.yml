@@ -38,7 +38,7 @@ jobs:
       - name: Create release
         run: ./scripts/build.sh
         env:
-          INFORMADO_DELIVERABLE: ${{ env.deliverable }}
+          DELIVERABLE: ${{ env.deliverable }}
           GITHUB_TAG: ${{ github.ref }}
           SHA512_CMD: ${{ matrix.shasum }}
         if: |
@@ -48,7 +48,7 @@ jobs:
         # yamllint disable rule:line-length
         run: |
           echo "GITHUB_TAG: '${{ github.ref }}'"
-          echo "INFORMADO_DELIVERABLE: '${{ env.deliverable }}'"
+          echo "DELIVERABLE: '${{ env.deliverable }}'"
           cd cmd/informado
           go build -ldflags "-X main.Version=${{ github.ref }}" -o "${{ env.deliverable }}"
           sha512sum "${{ env.deliverable }}" > "${{ env.deliverable }}.sha512.txt"
