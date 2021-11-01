@@ -32,5 +32,5 @@ parts:
       sha512sum -c informado-sha.txt
       mv informado-ubuntu-20.04 informado
       chmod +x ./informado
-      ./informado -h |\
+      ./informado -h 2>&1 |\
         grep "Usage of"
