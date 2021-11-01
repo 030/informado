@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"informado/internal/news"
@@ -122,8 +123,9 @@ func read(urls []*RSSFeeds, lastTimeInformadoWasRun int64) error {
 	return nil
 }
 
-func parse(input string, lastTimeInformadoWasRun int64) error {
-	urls, err := csv(input)
+func parse(home string, lastTimeInformadoWasRun int64) error {
+	f := filepath.Join(home, "rss-feed-urls.csv")
+	urls, err := csv(f)
 	if err != nil {
 		return err
 	}
@@ -133,11 +135,11 @@ func parse(input string, lastTimeInformadoWasRun int64) error {
 	return nil
 }
 
-func currentTimeToDisk(home string) error {
+func currentTimeToDisk(f string) error {
 	now := time.Now()
 	epoch := now.Unix()
 
-	file, err := os.Create(filepath.Join(home, ".informado"))
+	file, err := os.Create(f)
 	if err != nil {
 		return err
 	}
@@ -151,8 +153,21 @@ func currentTimeToDisk(home string) error {
 	return nil
 }
 
-func lastRun(home string) (int64, error) {
-	date, err := ioutil.ReadFile(filepath.Join(home, ".informado"))
+func lastRun(f string) (int64, error) {
+	if _, err := os.Stat(f); errors.Is(err, os.ErrNotExist) {
+		file, err := os.Create(f)
+		if err != nil {
+			return 0, err
+		}
+		defer file.Close()
+
+		_, err = file.WriteString("0")
+		if err != nil {
+			return 0, err
+		}
+	}
+
+	date, err := ioutil.ReadFile(f)
 	if err != nil {
 		return 0, err
 	}
@@ -165,31 +180,52 @@ func lastRun(home string) (int64, error) {
 	return n, nil
 }
 
-func main() {
+func init() {
 	log.SetReportCaller(true)
+}
 
-	home, err := homedir.Dir()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	input := flag.String("file", "", "The file that contains a list of RSS URLs")
+func informadoHome() (string, error) {
+	informadoHome := flag.String("home", "", "the home folder that contains the RSS Feed URLs CSV file")
 	flag.Parse()
-	if *input == "" {
-		*input = filepath.Join(home, "informado.csv")
+
+	if *informadoHome == "" {
+		home, err := homedir.Dir()
+		if err != nil {
+			return "", err
+		}
+
+		*informadoHome = filepath.Join(home, ".informado")
 	}
 
-	t, err := lastRun(home)
+	return *informadoHome, nil
+}
+
+func lastRunTimeAndWriteCurrentTimeToDisk(home string) error {
+	f := filepath.Join(home, "last-run-time.txt")
+
+	t, err := lastRun(f)
+	if err != nil {
+		return err
+	}
+	log.Infof("informado last run: '%s'", time.Unix(t, 0).Format(time.RFC3339))
+
+	if err := parse(home, t); err != nil {
+		return err
+	}
+
+	if err := currentTimeToDisk(f); err != nil {
+		return err
+	}
+	return nil
+}
+
+func main() {
+	home, err := informadoHome()
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Info(t)
 
-	if err := parse(*input, t); err != nil {
-		log.Fatal(err)
-	}
-
-	if err := currentTimeToDisk(home); err != nil {
+	if err := lastRunTimeAndWriteCurrentTimeToDisk(home); err != nil {
 		log.Fatal(err)
 	}
 }

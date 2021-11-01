@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - "*"
+      - '*'
 jobs:
   release:
     name: Create Release
@@ -23,20 +23,22 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: 1.17.0
-      - name: Set N3DR deliverable environment variable
-        run: echo "informado-deliverable=informado-${{ matrix.os }}" >> $GITHUB_ENV
+      - name: Set deliverable environment variable
+        run: |
+          echo "deliverable=informado-${{ matrix.os }}" >> $GITHUB_ENV
         if: |
           ${{ startsWith(matrix.os, 'mac') || startsWith(matrix.os, 'ubuntu') }}
-      - name: Set N3DR deliverable environment variable on Windows
-        run: echo "informado-deliverable=informado-${{ matrix.os }}" >> $env:GITHUB_ENV
+      - name: Set deliverable environment variable on Windows
+        run: |
+          echo "deliverable=informado-${{ matrix.os }}" >> $env:GITHUB_ENV
         if: ${{ startsWith(matrix.os, 'windows') }}
       - name: Use the value
         run: |
-          echo "${{ env.informado-deliverable }}"
+          echo "${{ env.deliverable }}"
       - name: Create release
         run: ./scripts/build.sh
         env:
-          N3DR_DELIVERABLE: ${{ env.informado-deliverable }}
+          INFORMADO_DELIVERABLE: ${{ env.deliverable }}
           GITHUB_TAG: ${{ github.ref }}
           SHA512_CMD: ${{ matrix.shasum }}
         if: |
@@ -46,11 +48,11 @@ jobs:
         # yamllint disable rule:line-length
         run: |
           echo "GITHUB_TAG: '${{ github.ref }}'"
-          echo "N3DR_DELIVERABLE: '${{ env.informado-deliverable }}'"
+          echo "INFORMADO_DELIVERABLE: '${{ env.deliverable }}'"
           cd cmd/informado
-          go build -ldflags "-X main.Version=${{ github.ref }}" -o "${{ env.informado-deliverable }}"
-          sha512sum "${{ env.informado-deliverable }}" > "${{ env.informado-deliverable }}.sha512.txt"
-          chmod +x "${{ env.informado-deliverable }}"
+          go build -ldflags "-X main.Version=${{ github.ref }}" -o "${{ env.deliverable }}"
+          sha512sum "${{ env.deliverable }}" > "${{ env.deliverable }}.sha512.txt"
+          chmod +x "${{ env.deliverable }}"
           ls informado-windows-2019
         if: ${{ startsWith(matrix.os, 'windows') }}
         # yamllint enable rule:line-length
@@ -58,13 +60,13 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: cmd/informado/${{ env.informado-deliverable }}
-          asset_name: ${{ env.informado-deliverable }}
+          file: cmd/informado/${{ env.deliverable }}
+          asset_name: ${{ env.deliverable }}
           tag: ${{ github.ref }}
       - name: Upload checksums
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: cmd/informado/${{ env.informado-deliverable }}.sha512.txt
-          asset_name: ${{ env.informado-deliverable }}.sha512.txt
+          file: cmd/informado/${{ env.deliverable }}.sha512.txt
+          asset_name: ${{ env.deliverable }}.sha512.txt
           tag: ${{ github.ref }}

@@ -1,5 +1,6 @@
 cmd/informado/.informado
 cmd/informado/informado
 informado.csv
+informado.sha512.txt
 *.snap
 .snapcraft
