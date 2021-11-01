@@ -2,10 +2,10 @@
 name: Snapcraft
 on:
   workflow_run:
-    workflows: ["Release"]
+    workflows: ['Release']
     push:
       tags:
-        - "*"
+        - '*'
     types:
       - completed
 jobs:
@@ -19,7 +19,7 @@ jobs:
         id: snapcraft
       - run: |
           sudo snap install --dangerous ${{ steps.snapcraft.outputs.snap }}
-          informado --version | grep "[0-9]\."
+          informado -h 2>&1 | grep "Usage of"
       - uses: snapcore/action-publish@v1
         with:
           store_login: ${{ secrets.SNAPCRAFT_LOGIN }}
