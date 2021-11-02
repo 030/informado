@@ -83,12 +83,28 @@ docker run \
 
 ### Slack
 
-Create a `~/.informado/creds.yml` file:
+[Create a Slack Channel and Token](https://github.com/030/sasm#create-an-app-channel-and-slack-token)
+and add them to a `~/.informado/creds.yml` file:
 
 ```bash
 ---
 slackChannel: x
 slackToken: y
+```
+
+### Kubernetes
+
+```bash
+export INFORMADO_URL="https://raw.githubusercontent.com/030/informado"
+curl -L ${INFORMADO_URL}/28-slack/deployments/k8s-and-openshift/deploy.yml -o \
+  deploy.yml
+kubectl create -f deploy.yml
+```
+
+Update the Slack channel ID and secret:
+
+```bash
+kubectl edit secret informado -n informado
 ```
 
 ## Stargazers over time

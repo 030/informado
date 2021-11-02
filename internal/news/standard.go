@@ -2,7 +2,9 @@ package news
 
 import (
 	"encoding/xml"
-	"fmt"
+	"informado/internal/pkg/slack"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type Item struct {
@@ -23,7 +25,7 @@ func (s Standard) Parse(b []byte) (RSS, error) {
 	return s, nil
 }
 
-func (s Standard) Print(lastTimeInformadoWasRun int64) error {
+func (s Standard) Print(lastTimeInformadoWasRun int64, sc slack.Channel) error {
 	for i := 0; i < len(s.Item); i++ {
 		updated := s.Item[i].PubDate
 		updatedInt64, err := dateToEpoch(updated)
@@ -32,7 +34,14 @@ func (s Standard) Print(lastTimeInformadoWasRun int64) error {
 		}
 
 		if updatedInt64 > lastTimeInformadoWasRun {
-			fmt.Println(updated + " " + s.Item[i].Title.Name + " " + s.Item[i].Link)
+			msg := updated + " " + s.Item[i].Title.Name + " " + s.Item[i].Link
+			log.Info(msg)
+			if sc.ID != "" && sc.Token != "" {
+				sc.Msg = msg
+				if err := sc.Send(); err != nil {
+					return err
+				}
+			}
 		}
 	}
 	return nil
