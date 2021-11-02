@@ -69,7 +69,7 @@ Once the file has been created, run:
 ./informado
 ```
 
-Once informado has been completed, a `~/.informado/last-run-time.txt` has been
+Once informado has been completed, a `/tmp/informado/last-run-time.txt` has been
 created that contains the Epoch time when the tool was run. The next time
 informado is run it will lookup the time and only show newer messages. If one
 would like to view all messages, then the time has to be changed in the
@@ -83,12 +83,30 @@ docker run \
 
 ### Slack
 
-Create a `~/.informado/creds.yml` file:
+[Create a Slack Channel and Token](https://github.com/030/sasm#create-an-app-channel-and-slack-token)
+and add them to a `~/.informado/creds.yml` file:
 
 ```bash
 ---
 slackChannel: x
 slackToken: y
+```
+
+### Kubernetes
+
+```bash
+sudo chown 9999 /var/k8s-storage/informado
+sudo chmod 0700 /var/k8s-storage/informado
+export INFORMADO_URL="https://raw.githubusercontent.com/030/informado"
+curl -L ${INFORMADO_URL}/28-slack/deployments/k8s-and-openshift/deploy.yml -o \
+  deploy.yml
+kubectl create -f deploy.yml
+```
+
+Update the Slack channel ID and secret:
+
+```bash
+kubectl edit secret informado -n informado
 ```
 
 ## Stargazers over time

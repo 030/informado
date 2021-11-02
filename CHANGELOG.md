@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### Added
+
+- Send messages to Slack.
+- K8s and OpenShift cronjob.
+
+### Changed
+
+- Remove superfluous channel.
+
 ## [3.0.0] - 2021-11-01
 
 ### Added
