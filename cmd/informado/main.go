@@ -5,21 +5,39 @@ import (
 	"flag"
 	"fmt"
 	"informado/internal/news"
+	"informado/internal/pkg/slack"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
-	"sync"
 	"time"
 
 	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 
 	"github.com/gocarina/gocsv"
 )
+
+type RSSFeed struct {
+	Type  string `csv:"type"`
+	URL   string `csv:"url"`
+	Error error
+}
+
+type informado struct {
+	home         string
+	lastRunTime  int64
+	rssFeed      *RSSFeed
+	slackChannel slack.Channel
+}
+
+var errs []error
+var wg sync.WaitGroup
 
 func readURL(u string) ([]byte, error) {
 	var bodyBytes []byte
@@ -49,8 +67,8 @@ func readURL(u string) ([]byte, error) {
 	return bodyBytes, nil
 }
 
-func rss(r news.RSS, url string, lastTimeInformadoWasRun int64) error {
-	byte, err := readURL(url)
+func (i *informado) rss(r news.RSS) error {
+	byte, err := readURL(i.rssFeed.URL)
 	if err != nil {
 		return err
 	}
@@ -58,26 +76,20 @@ func rss(r news.RSS, url string, lastTimeInformadoWasRun int64) error {
 	if err != nil {
 		return err
 	}
-	if err := a.Print(lastTimeInformadoWasRun); err != nil {
+	if err := a.Print(i.lastRunTime, i.slackChannel); err != nil {
 		return err
 	}
 	return nil
 }
 
-type RSSFeeds struct {
-	Type  string `csv:"type"`
-	URL   string `csv:"url"`
-	Error error
-}
-
-func csv(f string) ([]*RSSFeeds, error) {
+func csv(f string) ([]*RSSFeed, error) {
 	u, err := os.OpenFile(f, os.O_RDWR|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		return nil, err
 	}
 	defer u.Close()
 
-	r := []*RSSFeeds{}
+	r := []*RSSFeed{}
 	if err := gocsv.UnmarshalFile(u, &r); err != nil {
 		return nil, err
 	}
@@ -85,51 +97,47 @@ func csv(f string) ([]*RSSFeeds, error) {
 	return r, err
 }
 
-var wg sync.WaitGroup
-
-func newsItems(c chan *RSSFeeds, r *RSSFeeds, lastTimeInformadoWasRun int64) {
-	defer wg.Done()
-	var e error
-
-	switch t := r.Type; t {
+func (i *informado) newsItems() {
+	switch t := i.rssFeed.Type; t {
 	case "atom":
-		if err := rss(news.Atom{}, r.URL, lastTimeInformadoWasRun); err != nil {
-			e = err
+		if err := i.rss(news.Atom{}); err != nil {
+			errs = append(errs, err)
 		}
 	case "standard":
-		if err := rss(news.Standard{}, r.URL, lastTimeInformadoWasRun); err != nil {
-			e = err
+		if err := i.rss(news.Standard{}); err != nil {
+			errs = append(errs, err)
 		}
 	default:
-		e = fmt.Errorf("unsupported type '%v'", t)
+		errs = append(errs, fmt.Errorf("unsupported type '%v'", t))
 	}
-
-	c <- &RSSFeeds{r.Type, r.URL, e}
 }
 
-func read(urls []*RSSFeeds, lastTimeInformadoWasRun int64) error {
-	c := make(chan *RSSFeeds, len(urls))
-	for _, a := range urls {
+func (i *informado) read(feeds []*RSSFeed) error {
+	for _, feed := range feeds {
 		wg.Add(1)
-		go newsItems(c, a, lastTimeInformadoWasRun)
+		go func(feed *RSSFeed) {
+			defer wg.Done()
+			i.rssFeed = feed
+			i.newsItems()
+		}(feed)
 	}
 	wg.Wait()
-	close(c)
-	for item := range c {
-		if item.Error != nil {
-			return fmt.Errorf("type: '%v'. URL: '%v', Err: '%v'", item.Type, item.URL, item.Error)
+	for _, err := range errs {
+		if err != nil {
+			return err
 		}
 	}
+
 	return nil
 }
 
-func parse(home string, lastTimeInformadoWasRun int64) error {
-	f := filepath.Join(home, "rss-feed-urls.csv")
-	urls, err := csv(f)
+func (i *informado) parse() error {
+	f := filepath.Join(i.home, "rss-feed-urls.csv")
+	rssFeeds, err := csv(f)
 	if err != nil {
 		return err
 	}
-	if err := read(urls, lastTimeInformadoWasRun); err != nil {
+	if err := i.read(rssFeeds); err != nil {
 		return err
 	}
 	return nil
@@ -200,16 +208,17 @@ func informadoHome() (string, error) {
 	return *informadoHome, nil
 }
 
-func lastRunTimeAndWriteCurrentTimeToDisk(home string) error {
-	f := filepath.Join(home, "last-run-time.txt")
+func (i *informado) lastRunTimeAndWriteCurrentTimeToDisk(home string) error {
+	f := filepath.Join("/tmp", "informado", "last-run-time.txt")
 
 	t, err := lastRun(f)
 	if err != nil {
 		return err
 	}
 	log.Infof("informado last run: '%s'", time.Unix(t, 0).Format(time.RFC3339))
+	i.lastRunTime = t
 
-	if err := parse(home, t); err != nil {
+	if err := i.parse(); err != nil {
 		return err
 	}
 
@@ -219,13 +228,30 @@ func lastRunTimeAndWriteCurrentTimeToDisk(home string) error {
 	return nil
 }
 
+func slackCreds(home string) (slack.Channel, error) {
+	viper.SetConfigName("creds")
+	viper.SetConfigType("yml")
+	viper.AddConfigPath(home)
+
+	if err := viper.ReadInConfig(); err != nil {
+		return slack.Channel{}, err
+	}
+
+	return slack.Channel{ID: viper.GetString("slackChannel"), Token: viper.GetString("slackToken")}, nil
+}
+
 func main() {
 	home, err := informadoHome()
 	if err != nil {
 		log.Fatal(err)
 	}
+	s, err := slackCreds(home)
+	if err != nil {
+		log.Fatal(err)
+	}
+	i := informado{home: home, slackChannel: s}
 
-	if err := lastRunTimeAndWriteCurrentTimeToDisk(home); err != nil {
+	if err := i.lastRunTimeAndWriteCurrentTimeToDisk(home); err != nil {
 		log.Fatal(err)
 	}
 }
