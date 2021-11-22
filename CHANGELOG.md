@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [3.1.0] - 2021-11-22
+
 ### Added
 
 - Send messages to Slack.
@@ -40,7 +42,8 @@
 
 - Only show the latest news that has not been read
 
-[Unreleased]: https://github.com/030/informado/compare/3.0.0...HEAD
+[Unreleased]: https://github.com/030/informado/compare/3.1.0...HEAD
+[3.1.0]: https://github.com/030/informado/compare/3.0.0...3.1.0
 [3.0.0]: https://github.com/030/informado/compare/2.0.0...3.0.0
 [2.0.0]: https://github.com/030/informado/compare/1.4.0...2.0.0
 [1.4.0]: https://github.com/030/informado/releases/tag/1.4.0
