@@ -80,6 +80,7 @@ Create a `/tmp/informado/last-run-time.txt` file with owner `9999` and add a `0`
 ```bash
 docker run \
   -v /home/${USER}/.informado:/opt/informado/.informado \
+  -v /tmp/informado:/tmp/informado \
   -it utrecht/informado:3.1.0
 ```
 
