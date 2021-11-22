@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [3.1.1] - 2021-11-22
+
+### Fixed
+
+- Snapcraft package was not able to register last run time.
+
 ## [3.1.0] - 2021-11-22
 
 ### Added
@@ -42,7 +48,8 @@
 
 - Only show the latest news that has not been read
 
-[Unreleased]: https://github.com/030/informado/compare/3.1.0...HEAD
+[Unreleased]: https://github.com/030/informado/compare/3.1.1...HEAD
+[3.1.1]: https://github.com/030/informado/compare/3.1.0...3.1.1
 [3.1.0]: https://github.com/030/informado/compare/3.0.0...3.1.0
 [3.0.0]: https://github.com/030/informado/compare/2.0.0...3.0.0
 [2.0.0]: https://github.com/030/informado/compare/1.4.0...2.0.0

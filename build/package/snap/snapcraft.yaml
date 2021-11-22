@@ -1,7 +1,7 @@
 ---
 name: informado
 base: core20
-version: "3.1.0"
+version: "3.1.1"
 summary: Stay informed using Informado
 description: |
   Use this Go library or the tool to read various RSS feeds. Note that Atom

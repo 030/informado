@@ -209,7 +209,7 @@ func informadoHome() (string, error) {
 }
 
 func (i *informado) lastRunTimeAndWriteCurrentTimeToDisk(home string) error {
-	f := filepath.Join("/tmp", "informado", "last-run-time.txt")
+	f := filepath.Join(home, "informado-time", "last-run-time.txt")
 
 	t, err := lastRun(f)
 	if err != nil {
