@@ -1,0 +1,103 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: informado
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: informado
+  namespace: informado
+data:
+  rss-feed-urls.csv: |-
+    type,url
+    atom,https://github.com/golang/go/releases.atom
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: informado
+  namespace: informado
+stringData:
+  creds.yml: |-
+    ---
+    slack_channel_id: some-id
+    slack_token: some-token
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: informado
+spec:
+  accessModes:
+    - ReadWriteMany
+  capacity:
+    storage: 1Mi
+  hostPath:
+    path: /var/k8s-storage/informado
+    type: ""
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: informado
+  namespace: informado
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Mi
+  volumeMode: Filesystem
+  volumeName: informado
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: informado
+  namespace: informado
+spec:
+  schedule: "*/15 6-22 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: informado
+              image: utrecht/informado:3.1.0
+              resources:
+                limits:
+                  memory: "64Mi"
+                  cpu: "25m"
+                requests:
+                  memory: "4Mi"
+                  cpu: "5m"
+              imagePullPolicy: IfNotPresent
+              command:
+                - informado
+              args:
+                - --home
+                - /tmp/informado-config-creds
+              volumeMounts:
+                - name: creds-and-config
+                  mountPath: /tmp/informado-config-creds
+                  readOnly: true
+                - mountPath: /tmp/informado
+                  name: informado
+          restartPolicy: OnFailure
+          volumes:
+            - name: informado
+              persistentVolumeClaim:
+                claimName: informado
+            - name: creds-and-config
+              projected:
+                defaultMode: 420
+                sources:
+                  - secret:
+                      name: informado
+                  - configMap:
+                      name: informado
