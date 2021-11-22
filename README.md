@@ -119,6 +119,7 @@ After the first run, add more RSS feed URLs to the configMap, e.g.:
 atom,https://github.com/aws/aws-cli/releases.atom
 atom,https://github.com/securego/gosec/releases.atom
 atom,https://github.com/kubernetes/kubernetes/releases.atom
+atom,https://status.gitlab.com/pages/5b36dc6502d06804c08349f7/rss
 standard,https://aws.amazon.com/blogs/devops/feed
 standard,https://aws.amazon.com/new/feed
 standard,https://docker-hub-rss.now.sh/grafana/grafana.atom?includeRegex=%5E(%5Cd%2B%5C.)%7B2%7D%5Cd%2B%24
