@@ -75,6 +75,8 @@ informado is run it will lookup the time and only show newer messages. If one
 would like to view all messages, then the time has to be changed in the
 `.informado` file.
 
+Create a `/tmp/informado/last-run-time.txt` file with owner `9999` and add a `0` to it.
+
 ```bash
 docker run \
   -v /home/${USER}/.informado:/opt/informado/.informado \
