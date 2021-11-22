@@ -78,7 +78,7 @@ would like to view all messages, then the time has to be changed in the
 ```bash
 docker run \
   -v /home/${USER}/.informado:/home/informado/.informado \
-  -it informado:3.1.0
+  -it utrecht/informado:3.1.0
 ```
 
 ### Slack
