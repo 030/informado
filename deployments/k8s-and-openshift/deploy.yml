@@ -77,16 +77,11 @@ spec:
                   memory: "4Mi"
                   cpu: "5m"
               imagePullPolicy: IfNotPresent
-              command:
-                - informado
-              args:
-                - --home
-                - /tmp/informado-config-creds
               volumeMounts:
                 - name: creds-and-config
-                  mountPath: /tmp/informado-config-creds
+                  mountPath: /opt/informado/.informado
                   readOnly: true
-                - mountPath: /tmp/informado
+                - mountPath: /opt/informado/.informado/informado-time
                   name: informado
           restartPolicy: OnFailure
           volumes:
