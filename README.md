@@ -77,7 +77,7 @@ would like to view all messages, then the time has to be changed in the
 
 ```bash
 docker run \
-  -v /home/${USER}/.informado:/home/informado/.informado \
+  -v /home/${USER}/.informado:/opt/informado/.informado \
   -it utrecht/informado:3.1.0
 ```
 
